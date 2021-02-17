@@ -43,7 +43,7 @@ def packData(x):
     return struct.pack('!I',len(msg))+bytes(msg,'utf-8')
 
 #switcher
-def  List(msg):
+def  List(msg,conn,cr):
     cr.execute('SELECT port,password FROM users')
     result=[]
     all=cr.fetchall()
@@ -51,7 +51,7 @@ def  List(msg):
         result.append({'port':urow[0],'password': urow[1]})
     return result
 
-def  Add(msg):
+def  Add(msg,conn,cr):
     iport=msg['port']
     port=str(iport)
     password=msg['password']
@@ -69,7 +69,7 @@ def  Add(msg):
     return {'port': iport, 'password': password }
 
 
-def  Delete(msg):
+def  Delete(msg,conn,cr):
     iport=msg['port']
     port=str(iport)
     cl.remove_user(itag, port+'@v.com')
@@ -78,7 +78,7 @@ def  Delete(msg):
     return { 'port': iport }
 
 
-def  Flow(msg):
+def  Flow(msg,conn,cr):
     #port=msg['port']
     cr.execute('SELECT port,dl,ul FROM users')
     result=[]
@@ -99,10 +99,10 @@ def  Flow(msg):
     conn.commit()
     return result
 
-def  Version(msg):
-    return { 'type': 'version', 'version': '0.0.32' }
+def  Version(msg,conn,cr):
+    return { 'type': 'version', 'version': '1.0.32' }
 
-def Error(msg):
+def Error(msg,conn,cr):
     print('error command! '+ msg)
     return
 
@@ -114,15 +114,15 @@ switchers = {
   'version':Version
   }
 def goCommand(msg):
-    global conn
+    #global conn
     conn = sqlite3.connect(dbpath)
-    global cr
+    #global cr
     cr = conn.cursor()
 
     # Get the function from switcher dictionary
     func = switchers.get(msg['command'], Error)
     # Execute the function
-    res=func(msg)
+    res=func(msg,conn,cr)
     conn.commit()
     conn.close()
 
