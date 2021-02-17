@@ -88,14 +88,14 @@ def  Flow(msg,conn,cr):
         port=urow[0]
         cport=str(port)+'@v.com'
         #passwd=urow['password']
-        uplink=cl.get_user_traffic_uplink(cport) or 0
-        downlink=cl.get_user_traffic_downlink(cport) or 0
-        ddl=downlink-int(urow[1] or 0)
-        dul=uplink-int(urow[2] or 0)
+        uplink=cl.get_user_traffic_uplink(cport,True) or 0
+        downlink=cl.get_user_traffic_downlink(cport,True) or 0
+        #ddl=downlink-int(urow[1] or 0)
+        #dul=uplink-int(urow[2] or 0)
         lstupd.append((downlink,uplink,port))
         result.append({'port':port,'sumFlow': downlink+uplink})
     
-    cr.executemany('UPDATE users SET dl=? ,ul=? WHERE port=?',lstupd)
+    cr.executemany('UPDATE users SET dl=dl+? ,ul=ul+? WHERE port=?',lstupd)
     conn.commit()
     return result
 
