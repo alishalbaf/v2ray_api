@@ -156,9 +156,9 @@ def threaded(c):
         command=np[6:-4];
         bptime=str(ptime)
         compon=bptime+command.decode("utf-8")+key
-        print('recieved:',compon)
+        #print('recieved:',compon)
         hash = hashlib.md5(bytes(compon,'utf-8') ).hexdigest()[0:8]
-        print('hash:',int(hash,16),'  code:',ucode)
+        #print('hash:',int(hash,16),'  code:',ucode)
         if (int(hash,16) != ucode):
             print('Invalid message: Hash mismatch. (Incorrect password)')
             c.send(packData({'Code':2}))
