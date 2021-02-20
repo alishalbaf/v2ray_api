@@ -30,7 +30,7 @@ for urow in all:
     upasswd=uuid.UUID(urow[1]).hex
     try:
         cl.add_user(itag,upasswd,uport,0,16)
-        break
+        continue
     except:
         print(urow[0],'already ')
 conn.commit()
