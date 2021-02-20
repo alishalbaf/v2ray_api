@@ -29,7 +29,7 @@ for urow in all:
     uport=str(urow[0])+'@v.com'
     upasswd=uuid.UUID(urow[1]).hex
     try:
-        cr.add_user(itag,uport,upasswd,0,16)
+        cl.add_user(itag,uport,upasswd,0,16)
         break
     except:
         print(urow[0],'already ')
