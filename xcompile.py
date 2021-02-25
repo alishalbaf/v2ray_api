@@ -11,7 +11,7 @@ def walk(src, dst):
     # 导入路径类似'v2ray.com/core/common/serial/typed_message.proto'
     # 需整理好目录树
     tmp_dir = tempfile.mkdtemp()
-    v2ray_dir = os.path.join(tmp_dir, 'xray.com')
+    v2ray_dir = os.path.join(tmp_dir, 'xray')
     os.mkdir(v2ray_dir)
     shutil.copytree(src, os.path.join(v2ray_dir, 'core'))
 
@@ -26,15 +26,15 @@ def walk(src, dst):
 
     # 编译
     command = f'{sys.executable} -m grpc.tools.protoc ' \
-              f'-I={tmp_dir}/xray.com/core ' \
-              f'--python_out={dst}/xray.com ' \
-              f'--grpc_python_out={dst}/xray.com ' + proto_files
+              f'-I={tmp_dir}/xray/core ' \
+              f'--python_out={dst}/xray ' \
+              f'--grpc_python_out={dst}/xray ' + proto_files
     result = os.system(command)
     # 编译后*_pb2_grpc.py和*_pb2.py分别在v2ray.com和v2ray目录中
     # 将他们合并到一个目录
-    distutils.dir_util.copy_tree(os.path.join(dst, 'xray.com/core/'), os.path.join(dst, 'xray/com/core/'))
+    distutils.dir_util.copy_tree(os.path.join(dst, 'xray/core/'), os.path.join(dst, 'xray/core/'))
     shutil.rmtree(tmp_dir)
-    shutil.rmtree(os.path.join(dst, 'v2ray.com'))
+    shutil.rmtree(os.path.join(dst, 'xray'))
     return result
 
 
