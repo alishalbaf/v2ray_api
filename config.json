@@ -1,0 +1,193 @@
+{
+  "api": {
+    "services": [
+      "HandlerService",
+      "LoggerService",
+      "StatsService"
+    ],
+    "tag": "api"
+  },
+  "dns": {},
+  "inbounds": [
+          {
+            "port": 10800,
+            "listen": "0.0.0.0",
+            "protocol": "socks",
+            "settings": {
+                "udp": true
+            }
+        },
+    {
+      "port": 1080, // The open port
+      "protocol": "dokodemo-door",
+      "settings": {
+        "network": "tcp,udp",
+        "followRedirect": true // Need to be set as true to accept traffic from iptables
+      },
+      "sniffing": {
+        "enabled": true,
+        "destOverride": ["http", "tls"]
+      }
+    },
+    {
+      "listen": "127.0.0.1",
+      "port": 62789,
+      "protocol": "dokodemo-door",
+      "settings": {
+        "address": "127.0.0.1"
+      },
+      "tag": "api"
+    },
+    {
+      "listen": "0.0.0.0",
+      "port": 6001,
+      "protocol": "vmess",
+      "settings": {
+        "clients": [
+          {
+            "id": "eeefffaa-dddd-4444-8888-333399991111",
+            "alterId": 8
+          }
+        ],
+        "disableInsecureEncryption": false
+      },
+      "sniffing": {
+        "destOverride": [
+          "http",
+          "tls"
+        ],
+        "enabled": true
+      },
+      "streamSettings": {
+        "network": "ws",
+        "security": "none",
+        "wsSettings": {
+          "headers": {},
+          "path": "/api"
+        }
+      },
+      "tag": "i6001"
+    },
+    {
+      "listen": "0.0.0.0",
+      "port": 60002,
+      "protocol": "shadowsocks",
+      "settings": {
+        "method": "chacha20-poly1305",
+        "network": "tcp,udp",
+        "password": "mitikoman1"
+      },
+      "sniffing": {
+        "destOverride": [
+          "http",
+          "tls"
+        ],
+        "enabled": true
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "security": "none",
+        "tcpSettings": {
+          "header": {
+            "request": {
+              "headers": {},
+              "method": "GET",
+              "path": [
+                "/api"
+              ]
+            },
+            "response": {
+              "headers": {},
+              "reason": "OK",
+              "status": "200",
+              "version": "1.1"
+            },
+            "type": "http"
+          }
+        }
+      },
+      "tag": "i6002"
+    }
+  ],
+  "log": {},
+  "outbounds": [
+	{
+      "protocol": "vless",
+      "settings": {
+      "vnext": [
+                   {
+                        "address": "OUTSERVER.COM", // 换成你的域名或服务器 IP（发起请求时无需解析域名了）
+                        "port": 443,
+                        "users": [
+                            {
+                                "id": "eeefffaa-dddd-4444-8888-333399991111", // 填写你的 UUID
+                                "flow": "xtls-rprx-splice",
+                                "encryption": "none",
+                                "level": 0
+                            }
+                        ]
+                    }
+               ]
+            },
+      "streamSettings": {
+			"network": "tcp",
+			"security": "xtls", // 需要使用 XTLS
+			"xtlsSettings": {
+					"serverName": "OUTSERVER.COM" // 换成你的域名
+					}
+		},
+		"tag":"proxy"
+    },
+	{
+      "protocol": "freedom",
+      "settings": {},
+	  "tag":"direct"
+    },
+    {
+      "protocol": "blackhole",
+      "settings": {},
+      "tag": "blocked"
+    },
+
+  ],
+  "policy": {
+    "levels": {
+    "0": {
+      "statsUserUplink": true,
+      "statsUserDownlink": true
+    }
+  },
+    "system": {
+      "statsInboundDownlink": true,
+      "statsInboundUplink": true
+    }
+  },
+  "reverse": {},
+  "routing": {
+    "rules": [
+      {
+        "inboundTag": [
+          "api"
+        ],
+        "outboundTag": "api",
+        "type": "field"
+      },
+      {
+        "ip": [
+          "geoip:private"
+        ],
+        "outboundTag": "blocked",
+        "type": "field"
+      },
+      {
+        "ip": [
+          "geoip:ir"
+        ],
+        "outboundTag": "direct",
+        "type": "field"
+      }
+    ]
+  },
+  "stats": {},
+  "transport": {}
+  }
