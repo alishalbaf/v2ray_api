@@ -27,8 +27,8 @@ def walk(src, dst):
     # 编译
     command = f'{sys.executable} -m grpc.tools.protoc ' \
               f'-I={tmp_dir}/xray.com/core ' \
-              f'--python_out={dst}/xray.com/core ' \
-              f'--grpc_python_out={dst}/xray.com/core ' + proto_files
+              f'--python_out={dst}/xray.com ' \
+              f'--grpc_python_out={dst}/xray.com ' + proto_files
     result = os.system(command)
     # 编译后*_pb2_grpc.py和*_pb2.py分别在v2ray.com和v2ray目录中
     # 将他们合并到一个目录
