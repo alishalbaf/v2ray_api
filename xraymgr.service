@@ -1,0 +1,16 @@
+[Unit]
+Description=V2Ray Management service Service
+Documentation=https://www.v2fly.org/
+After=network.target xray.service
+PartOf=xray.service
+
+[Service]
+WorkingDirectory=/opt/v2ray_api/
+CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_BIND_SERVICE
+AmbientCapabilities=CAP_NET_ADMIN CAP_NET_BIND_SERVICE
+ExecStart=python3 -u xraymgr.py
+Restart=on-failure
+RestartPreventExitStatus=23
+
+[Install]
+WantedBy=multi-user.target
