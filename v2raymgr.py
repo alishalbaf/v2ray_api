@@ -10,6 +10,7 @@ import time
 import hashlib
 import json
 import sqlite3
+import argparse
 
 key='mitikoman'
 vport=62789
@@ -17,27 +18,40 @@ lport=12345
 dbpath='/opt/users.db'
 itag='v6001'
 
-print_lock = threading.Lock() 
-
-cl=Client ( "127.0.0.1" , vport )
-conn = sqlite3.connect(dbpath)
-cr = conn.cursor()
-cr.execute('''CREATE TABLE IF NOT EXISTS users (port int PRIMARY KEY, password text, dl decimal, ul decimal)''')
-cr.execute('SELECT port,password FROM users')
-all=cr.fetchall()
-for urow in all:
-    uport=str(urow[0])+'@v.com'
-    upasswd=uuid.UUID(urow[1]).hex
-    try:
-        cl.add_user(itag,upasswd,uport,0,16)
-        continue
-    except:
-        print(urow[0],'already ')
-conn.commit()
-conn.close()
 conn=0
-cr=0
-
+cl=0
+print_lock = threading.Lock() 
+def initParams():
+    cl=Client ( "127.0.0.1" , vport )
+    conn = sqlite3.connect(dbpath)
+    cr = conn.cursor()
+    cr.execute('''CREATE TABLE IF NOT EXISTS users (port int PRIMARY KEY, password text, dl decimal, ul decimal)''')
+    cr.execute('SELECT port,password FROM users')
+    all=cr.fetchall()
+    for urow in all:
+        uport=str(urow[0])+'@v.com'
+        upasswd=uuid.UUID(urow[1]).hex
+        try:
+            cl.add_user(itag,upasswd,uport,0,16)
+            continue
+        except:
+            print(urow[0],'already ')
+    conn.commit()
+    conn.close()
+    conn=0
+    cr=0
+	return
+def  AddUser(password,user):
+    email=user+'@v.com'
+    cl.add_user(itag, password, email, 0, 16)
+	cl.add_user(itag2, password, email, 0, 16)
+	return
+def  AddUser(password,user):
+    email=user+'@v.com'
+    cl.add_user(itag, password, email, 0, 16)
+	cl.add_user(itag2, password, email, 0, 16)
+	return
+	
 def packData(x):
     msg=json.dumps(x)    
     return struct.pack('!I',len(msg))+bytes(msg,'utf-8')
@@ -178,6 +192,27 @@ def threaded(c):
   
   
 def Main(): 
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-k", "--key", help="set password for controller")
+    parser.add_argument("-v", "--vport", help="ray port")
+	parser.add_argument("-l", "--lport", help="listen port for controller")
+	parser.add_argument("-d", "--dbpath", help="database path")
+	parser.add_argument("-t", "--itag", help="tag for ray")
+    # Read arguments from the command line
+    args = parser.parse_args()
+	if (args.key):
+	    key=args.key
+	if (args.vport):
+	    vport=int(args.vport)
+	if (args.lport):
+	    lport=int(args.lport)
+	if (args.dbpath):
+	    dbpath=args.dbpath
+	if (args.itag):
+	    itag=args.itag
+		
+    initParams()
+
     host = "" 
     # reverse a port on your computer 
     # in our case it is 12345 but it 
